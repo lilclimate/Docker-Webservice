@@ -1,0 +1,132 @@
+version: '2'
+services:
+    www-data:
+        container_name: www-data
+        image:          centos:6.6
+        command:        /bin/bash
+        volumes:
+                        - /Users/lilclimate/Public/workspace/meizu_company/data/etc:/data/etc
+                        - /Users/lilclimate/Public/workspace/meizu_company/data/sh:/data/sh
+                        - /Users/lilclimate/Public/workspace/meizu_company/developer:/data/www
+                        - /Users/lilclimate/Public/workspace/lua_demo:/data/openresty/nginx/lua
+    mysql:
+            container_name: mysql
+            image: mysql:5.7.13
+            environment:
+                    MYSQL_ROOT_PASSWORD: 123456
+                    MYSQL_DATABASE: dbname
+                    MYSQL_USER: user
+                    MYSQL_PASSWORD: 123456
+            ports:
+                        - "3306:3306"
+    redis:
+            container_name: redis
+            image: redis:3.2.1
+            ports:
+                        - "6379:6379"
+    openresty:
+            container_name: openresty
+            build:          ./openresty1.9.15
+            command:        service nginx start
+            ports:
+                            - 8888:80
+                            - 8080:8080
+                            - 9090:9090
+                            - 8083:8081
+            volumes_from:
+                            - www-data
+            links:
+                            - redis:redis
+                            - mysql:mysql
+            extra_hosts:
+                            - cs-api.meizu.com:192.168.99.100
+    openresty-1.11.2.1:
+            container_name: openresty-1.11.2.1
+            build:          ./openresty1.11.2.1
+            command:        service nginx start
+            ports:
+                            - 8889:80
+                            - 8089:8080
+                            - 9099:9090
+                            - 8099:8081
+            volumes_from:
+                            - www-data
+            links:
+                            - redis:redis
+                            - mysql:mysql
+            extra_hosts:
+                            - cs-api.meizu.com:192.168.99.100
+    nginx-proxy:
+            container_name: nginx-proxy
+            build:          ./nginx1.11-proxy
+            command:        service nginx start
+            expose:
+                            - 22
+            ports:
+                            - 80:80
+                            - 443:443
+            volumes_from:
+                            - www-data
+            depends_on:
+                            - nginx-php1
+                            - nginx-php2
+            links:
+                            - nginx-php1:server1
+                            - nginx-php2:server2
+            extra_hosts:
+                            - i.flyme.cn:172.16.200.220
+
+    nginx-php1:
+            container_name: nginx-php1
+            build:          ./nginx-php5.6
+            command:        /bin/sh /data/sh/run/nginx-php.sh
+            privileged:     true
+            ports:
+                            - 8081:80
+            volumes_from:
+                            - www-data
+            extra_hosts:
+                            - cs-api.meizu.com:192.168.99.100
+                            - zsk-manage.meizu.com:10.2.67.115
+                            - i.flyme.cn:172.16.200.220
+                            - mie.meizu.com:10.2.69.24
+                            - uac.meizu.com:172.17.21.37
+            links:
+                            - mysql:mysql
+
+    nginx-php2:
+            container_name: nginx-php2
+            build:          ./nginx-php5.6
+            command:        /bin/sh /data/sh/run/nginx-php.sh
+            privileged:     true
+            ports:
+                            - 8082:80
+            volumes_from:
+                            - www-data
+            extra_hosts:
+                            - cs-api.meizu.com:192.168.99.100
+                            - zsk-manage.meizu.com:10.2.67.115
+                            - i.flyme.cn:172.16.200.220
+                            - mie.meizu.com:10.2.69.24
+                            - uac.meizu.com:172.17.21.37
+            links:
+                            - mysql:mysql
+    xunsearch:
+            container_name: xunsearch
+            image:          z/xunsearch1.4.10
+            command:        /bin/sh /data/sh/run/xs.sh
+            ports:
+                            - 8383:8383
+                            - 8384:8384
+            volumes_from:
+                            - www-data
+    elasticsearch:
+           container_name: elasticsearch
+           image:          z/elasticsearch2.3
+           command:        /bin/sh /data/elasticsearch2.3/bin/elasticsearch -Des.insecure.allow.root=true
+           ports:
+                           - 9200:9200
+           volumes_from:
+                           - www-data
+           extra_hosts:
+                           - www.bintray.com:119.81.184.206
