@@ -10,6 +10,7 @@ services:
                         - /Users/lilclimate/Public/workspace/meizu_company/data/opt:/data/opt
                         - /Users/lilclimate/Public/workspace/lua_demo:/data/openresty/nginx/lua
                         - /Users/lilclimate/Public/workspace/meizu_company/developer:/data/www
+                        - /Users/lilclimate/Public/workspace:/data/www1
     # mysql:
     #         container_name: mysql
     #         image: mysql:5.7.13
@@ -25,23 +26,23 @@ services:
             image: redis:3.2.1
             ports:
                         - "6379:6379"
-    openresty-1.11.2.1:
-            container_name: openresty-1.11.2.1
-            build:          ./openresty1.11.2.1
-            command:        service nginx start
-            ports:
-                            - 8888:80
-                            - 8080:8080
-                            - 9090:9090
-                            - 8083:8081
-            volumes_from:
-                            - www-data
-            links:
-                            - redis:redis
-                            - mysql-master:mysql
-            extra_hosts:
-                            - cs-api.meizu.com:192.168.99.100
-                            - zsk-api.meizu.com:192.168.99.100
+    # openresty-1.11.2.1:
+    #         container_name: openresty-1.11.2.1
+    #         build:          ./openresty1.11.2.1
+    #         command:        service nginx start
+    #         ports:
+    #                         - 8888:80
+    #                         - 8080:8080
+    #                         - 9090:9090
+    #                         - 8083:8081
+    #         volumes_from:
+    #                         - www-data
+    #         links:
+    #                         - redis:redis
+    #                         - mysql-master:mysql
+    #         extra_hosts:
+    #                         - cs-api.meizu.com:192.168.99.100
+    #                         - zsk-api.meizu.com:192.168.99.100
     mysql-master:
             container_name: mysql-master
             image:          mysql:5.7.16
@@ -87,7 +88,7 @@ services:
     #                         - zsk-api.meizu.com:192.168.99.100
     nginx-proxy:
             container_name: nginx-proxy
-            build:          ./nginx1.11-proxy
+            build:          ./openresty1.11.2.1
             command:        service nginx start
             expose:
                             - 22
@@ -108,14 +109,14 @@ services:
                             - openresty-php2:server2
             extra_hosts:
                             - i.flyme.cn:172.16.200.220
-    nodejs:
-            container_name: nodejs
-            build:          ./nodejs
-            command:        /bin/sh /data/sh/run/nodejs.sh
-            ports:
-                            - 3001:3001
-            volumes_from:
-                            - www-data
+    # nodejs:
+    #         container_name: nodejs
+    #         build:          ./nodejs
+    #         command:        /bin/sh /data/sh/run/nodejs.sh
+    #         ports:
+    #                         - 3001:3001
+    #         volumes_from:
+    #                         - www-data
     openresty-php1:
             container_name: openresty-php1
             build:          ./openresty-php5.6
