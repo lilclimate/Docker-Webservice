@@ -1,4 +1,4 @@
-FROM web2_openresty-1.11.2.1
+FROM z/openresty1.11.2.1
 
 MAINTAINER Z
 

@@ -11,21 +11,34 @@ services:
                         - /Users/lilclimate/Public/workspace/lua_demo:/data/openresty/nginx/lua
                         - /Users/lilclimate/Public/workspace/meizu_company/developer:/data/www
                         - /Users/lilclimate/Public/workspace:/data/www1
-    # mysql:
-    #         container_name: mysql
-    #         image: mysql:5.7.13
-    #         environment:
-    #                 MYSQL_ROOT_PASSWORD: 123456
-    #                 MYSQL_DATABASE: dbname
-    #                 MYSQL_USER: user
-    #                 MYSQL_PASSWORD: 123456
-    #         ports:
-    #                     - "3306:3306"
     redis:
             container_name: redis
             image: redis:3.2.1
             ports:
                         - "6379:6379"
+    nginx-proxy:
+            container_name: nginx-proxy
+            build:          ./nginx1.11-proxy
+            command:        service nginx start
+            expose:
+                            - 22
+            ports:
+                            - 80:80
+                            - 443:443
+            volumes_from:
+                            - www-data
+            depends_on:
+                            # - nginx-php1
+                            # - nginx-php2
+                            - openresty-php1
+                            - openresty-php2
+            links:
+                            # - nginx-php1:server1
+                            # - nginx-php2:server2
+                            - openresty-php1:server1
+                            - openresty-php2:server2
+            extra_hosts:
+                            - i.flyme.cn:172.16.200.220
     openresty-1.11.2.1:
             container_name: openresty-1.11.2.1
             build:          ./openresty1.11.2.1
@@ -58,57 +71,6 @@ services:
                         - /Users/lilclimate/Public/workspace/meizu_company/data/mysql_data:/var/lib/mysql
                         - /Users/lilclimate/Public/workspace/meizu_company/data/sh:/data/sh
             command:    /bin/sh /data/sh/run/mysql.sh
-    # mysql-slave:
-    #         container_name: mysql-slave
-    #         image:          mysql:5.7.16
-    #         ports:
-    #                         - 3316:3306
-    #         environment:
-    #                         MYSQL_ROOT_PASSWORD: 123456
-    #                         MYSQL_DATABASE: dbname
-    #                         MYSQL_USER: user
-    #                         MYSQL_PASSWORD: 123456
-    #         volumes:
-    #                         - /Users/lilclimate/Public/workspace/meizu_company/data/mysql_data:/var/lib/mysql
-    #                         - /Users/lilclimate/Public/workspace/meizu_company/data/sh:/data/sh
-    #         command:        /bin/sh /data/sh/run/mysql.sh
-    # nginx-lua:
-    #         container_name: nginx-lua 
-    #         build:          ./nginx-lua
-    #         command:        service nginx start
-    #         ports:
-    #                         - 8880:80
-    #         volumes_from:
-    #                         - www-data
-    #         links:
-    #                         - redis:redis
-    #                         # - mysql:mysql
-    #         extra_hosts:
-    #                         - cs-api.meizu.com:192.168.99.100
-    #                         - zsk-api.meizu.com:192.168.99.100
-    nginx-proxy:
-            container_name: openresty-proxy
-            build:          ./openresty1.11.2.1
-            command:        service nginx start
-            expose:
-                            - 22
-            ports:
-                            - 80:80
-                            - 443:443
-            volumes_from:
-                            - www-data
-            depends_on:
-                            # - nginx-php1
-                            # - nginx-php2
-                            - openresty-php1
-                            - openresty-php2
-            links:
-                            # - nginx-php1:server1
-                            # - nginx-php2:server2
-                            - openresty-php1:server1
-                            - openresty-php2:server2
-            extra_hosts:
-                            - i.flyme.cn:172.16.200.220
     # nodejs:
     #         container_name: nodejs
     #         build:          ./nodejs
@@ -157,7 +119,7 @@ services:
                             - uac.meizu.com:172.17.21.37
     xunsearch:
             container_name: xunsearch
-            image:          z/xunsearch1.4.10
+            build:          ./xunsearch1.4.10
             command:        /bin/sh /data/sh/run/xs.sh
             ports:
                             - 8383:8383
