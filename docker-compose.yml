@@ -11,11 +11,17 @@ services:
                         - /Users/lilclimate/Public/workspace/lua_demo:/data/openresty/nginx/lua
                         - /Users/lilclimate/Public/workspace/meizu_company/developer:/data/www
                         - /Users/lilclimate/Public/workspace:/data/www1
+                        - /Users/lilclimate/Public/workspace/self:/data/www_self
     redis:
             container_name: redis
             image: redis:3.2.1
             ports:
                         - "6379:6379"
+    kong-dashboard:
+            container_name: kong-dashboard
+            image:  pgbi/kong-dashboard
+            ports:
+                        - 8084:8080
     nginx-proxy:
             container_name: nginx-proxy
             build:          ./nginx1.11-proxy
@@ -94,10 +100,6 @@ services:
             extra_hosts:
                             - zsk-api.meizu.com:192.168.99.100
                             - or-api.meizu.com:192.168.99.100
-                            - zsk-manage.meizu.com:10.2.67.115
-                            - i.flyme.cn:172.16.200.220
-                            - mie.meizu.com:10.2.69.24
-                            - uac.meizu.com:172.17.21.37
     openresty-php2:
             container_name: openresty-php2
             build:          ./openresty-php5.6
@@ -113,10 +115,6 @@ services:
             extra_hosts:
                             - zsk-api.meizu.com:192.168.99.100
                             - or-api.meizu.com:192.168.99.100
-                            - zsk-manage.meizu.com:10.2.67.115
-                            - i.flyme.cn:172.16.200.220
-                            - mie.meizu.com:10.2.69.24
-                            - uac.meizu.com:172.17.21.37
     xunsearch:
             container_name: xunsearch
             build:          ./xunsearch1.4.10
@@ -126,3 +124,4 @@ services:
                             - 8384:8384
             volumes_from:
                             - www-data
+

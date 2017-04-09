@@ -27,6 +27,7 @@ cd /opt/php-5.6.23 && \
 --with-curl \
 --with-gd \
 --with-openssl \
+--with-pear \
 --with-mhash \
 --with-mcrypt \
 --with-xmlrpc \
@@ -110,6 +111,9 @@ composer global require "phpunit/php-invoker=1.1.*" && \
 composer global require "phpunit/dbunit >=1.2"
 
 RUN yum install -y git luarocks && \
-luarocks install lua-resty-repl
+luarocks install lua-resty-repl 
+
+RUN /data/php5.6/bin/pear channel-discover pear.apache.org/log4php && \
+/data/php5.6/bin/pear install log4php/Apache_log4php
 
 CMD ["/data/sh/run/nginx-php.sh"]
